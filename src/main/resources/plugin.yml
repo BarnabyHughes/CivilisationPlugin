@@ -1,0 +1,15 @@
+main: me.barnaby.civilisation.Civilisation
+name: Civilisation
+author: Barnaby
+version: 1.0.0
+api-version: 1.21
+depend:
+  - LuckPerms
+commands:
+  notify:
+  report:
+  chat:
+    description: Switch chat channels.
+    usage: /chat <global/local/staff>
+  airdrop:
+  event:

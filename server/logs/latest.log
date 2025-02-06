@@ -5622,3 +5622,5 @@ Caused by: java.lang.NullPointerException: Cannot invoke "String.equals(Object)"
 [18:26:01] [Server thread/WARN]: Zeyph moved too quickly! -162.7860049496995,-0.875,147.9566159571093
 [18:26:01] [Server thread/WARN]: Zeyph moved too quickly! -162.7860049496995,-0.875,147.9566159571093
 [18:26:01] [Server thread/WARN]: Zeyph moved too quickly! -162.7860049496995,-0.875,147.9566159571093
+[18:32:24] [Server thread/INFO]: Zeyph issued server command: /weather clear
+[18:32:24] [Server thread/INFO]: [Zeyph: Set the weather to clear]

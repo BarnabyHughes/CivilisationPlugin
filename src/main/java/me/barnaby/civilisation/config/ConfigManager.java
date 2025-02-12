@@ -45,11 +45,17 @@ public class ConfigManager {
 
         config = YamlConfiguration.loadConfiguration(configFile);
 
+
         // Load all config sections
         loadRankFormats();
         loadAirdropConfig();
         loadEventsConfig();
         loadMessagesConfig();
+
+        if (!config.contains("civilisation-join-radius"))
+            config.set("civilisation-join-radius", 25);
+
+        saveConfig();
     }
 
     /**

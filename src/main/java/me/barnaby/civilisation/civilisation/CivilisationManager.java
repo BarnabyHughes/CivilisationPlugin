@@ -5,12 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Manages civilisations, including their spawn points and player memberships.
@@ -19,6 +17,7 @@ public class CivilisationManager {
     private final Plugin plugin;
     private final ConfigManager configManager;
     private final Map<String, Location> civilisationSpawns = new HashMap<>();
+    private final Random random = new Random();
 
     public CivilisationManager(Plugin plugin, ConfigManager configManager) {
         this.plugin = plugin;
@@ -98,7 +97,11 @@ public class CivilisationManager {
     public void teleportToCivilisationSpawn(Player player) {
         String civ = getPlayerCivilisation(player);
         if (civ != null && civilisationSpawns.containsKey(civ)) {
-            player.teleport(civilisationSpawns.get(civ));
+            int teleportRadius = configManager.getConfig().getInt("civilisation-join-radius");
+            int addX = random.nextInt(teleportRadius*2)-teleportRadius;
+            int addZ = random.nextInt(teleportRadius*2)-teleportRadius;
+
+            player.teleport(civilisationSpawns.get(civ).clone().add(addX, 0, addZ));
             player.sendMessage(configManager.getMessage("civilisation.welcome", civ));
         }
     }

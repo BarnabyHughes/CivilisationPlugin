@@ -183,34 +183,49 @@ public class AirdropManager {
 
             ItemStack item = new ItemStack(material, amount);
             ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                // Apply custom name if provided
+                if (itemSection.contains("name")) {
+                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', itemSection.getString("name")));
+                }
 
-            // Apply custom name
-            if (itemSection.contains("name") && meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', itemSection.getString("name")));
-            }
+                // Apply custom lore if provided (a list of strings)
+                if (itemSection.contains("lore")) {
+                    List<String> loreList = itemSection.getStringList("lore");
+                    List<String> translatedLore = new ArrayList<>();
+                    for (String loreLine : loreList) {
+                        translatedLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
+                    }
+                    meta.setLore(translatedLore);
+                }
 
-            // Apply enchantments
-            if (itemSection.contains("enchants") && meta != null) {
-                for (String enchantEntry : itemSection.getStringList("enchants")) {
-                    String[] parts = enchantEntry.split(":");
-                    if (parts.length == 2) {
-                        Enchantment enchantment = Enchantment.getByName(parts[0].toUpperCase());
-                        int level = Integer.parseInt(parts[1].trim());
-
-                        if (enchantment != null) {
-                            meta.addEnchant(enchantment, level, true);
+                // Apply enchantments if provided
+                if (itemSection.contains("enchants")) {
+                    for (String enchantEntry : itemSection.getStringList("enchants")) {
+                        String[] parts = enchantEntry.split(":");
+                        if (parts.length == 2) {
+                            Enchantment enchantment = Enchantment.getByName(parts[0].toUpperCase());
+                            int level = Integer.parseInt(parts[1].trim());
+                            if (enchantment != null) {
+                                meta.addEnchant(enchantment, level, true);
+                            }
                         }
                     }
                 }
-            }
 
-            if (meta != null) {
+                // Apply custom model data if provided
+                if (itemSection.contains("custom-model-data")) {
+                    int modelData = itemSection.getInt("custom-model-data");
+                    meta.setCustomModelData(modelData);
+                }
+
                 item.setItemMeta(meta);
             }
 
             chest.getInventory().addItem(item);
         }
     }
+
 
     /**
      * Launches a firework at the airdrop location.

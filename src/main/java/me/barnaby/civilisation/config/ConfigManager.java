@@ -215,13 +215,40 @@ public class ConfigManager {
     private void createExampleAirdropType(ConfigurationSection parentSection, String typeName, int chance) {
         ConfigurationSection typeSection = parentSection.createSection(typeName);
         typeSection.set("chance", chance);
-
         ConfigurationSection itemsSection = typeSection.createSection("items");
 
-        addExampleItem(itemsSection, "DIAMOND", 16, 32, 40);
-        addExampleItem(itemsSection, "NETHERITE_SCRAP", 1, 5, 20);
-        addExampleItem(itemsSection, "GOLDEN_APPLE", 2, 5, 50);
+        // Use the new addExampleItem method with lore and custom model data examples.
+        if ("common".equalsIgnoreCase(typeName)) {
+            addExampleItem(itemsSection, "DIAMOND", 16, 32, 40,
+                    "&bShiny Diamond",
+                    Arrays.asList("&7A precious gemstone.", "&eHandle with care!"),
+                    12345,
+                    Map.of("FORTUNE", 3));
+            addExampleItem(itemsSection, "GOLDEN_APPLE", 2, 5, 50,
+                    "&6Enchanted Apple",
+                    Arrays.asList("&7Restores health", "&7and grants vitality."),
+                    54321,
+                    null);
+        } else if ("legendary".equalsIgnoreCase(typeName)) {
+            addExampleItem(itemsSection, "NETHER_STAR", 1, 1, 100,
+                    "&6Mystic Star",
+                    Arrays.asList("&7This star holds the power", "&7of the ancients."),
+                    98765,
+                    Map.of("SHARPNESS", 5, "LOOT_BONUS_MOBS", 3));
+            addExampleItem(itemsSection, "ELYTRA", 1, 1, 50,
+                    "&5Wings of the Phoenix",
+                    Arrays.asList("&7Soar through the skies in style.",
+                            "&7Legends say these wings are blessed by the gods."),
+                    112233,
+                    null);
+        } else {
+            // For other types (like rare or mystic) use simpler defaults.
+            addExampleItem(itemsSection, "DIAMOND", 16, 32, 40);
+            addExampleItem(itemsSection, "NETHERITE_SCRAP", 1, 5, 20);
+            addExampleItem(itemsSection, "GOLDEN_APPLE", 2, 5, 50);
+        }
     }
+
 
     /**
      * Adds an example event to the config.
@@ -253,24 +280,34 @@ public class ConfigManager {
 
     /**
      * Adds an example item to the airdrop configuration.
+     *
+     * This version accepts all available customization options:
+     * custom name, lore, custom model data, and enchantments.
+     *
+     * @param section           The configuration section to add the item to.
+     * @param item              The material name of the item.
+     * @param min               Minimum amount.
+     * @param max               Maximum amount.
+     * @param chance            Chance of inclusion.
+     * @param name              Custom display name (with color codes).
+     * @param lore              List of lore strings.
+     * @param customModelData   Custom model data (an integer) for resource pack support.
+     * @param enchants          Map of enchantments (key: enchantment name, value: level).
      */
-    private void addExampleItem(ConfigurationSection section, String item, int min, int max, int chance) {
-        addExampleItem(section, item, min, max, chance, null, null);
-    }
-
-    /**
-     * Adds an example item with optional name and enchantments.
-     */
-    private void addExampleItem(ConfigurationSection section, String item, int min, int max, int chance, String name, Map<String, Integer> enchants) {
+    private void addExampleItem(ConfigurationSection section, String item, int min, int max, int chance, String name, List<String> lore, Integer customModelData, Map<String, Integer> enchants) {
         ConfigurationSection itemSection = section.createSection(item);
         itemSection.set("amount-min", min);
         itemSection.set("amount-max", max);
         itemSection.set("chance-of-inclusion", chance);
-
         if (name != null) {
             itemSection.set("name", name);
         }
-
+        if (lore != null && !lore.isEmpty()) {
+            itemSection.set("lore", lore);
+        }
+        if (customModelData != null) {
+            itemSection.set("custom-model-data", customModelData);
+        }
         if (enchants != null && !enchants.isEmpty()) {
             List<String> enchantList = new ArrayList<>();
             for (Map.Entry<String, Integer> entry : enchants.entrySet()) {
@@ -278,6 +315,20 @@ public class ConfigManager {
             }
             itemSection.set("enchants", enchantList);
         }
+    }
+
+    /**
+     * Overloaded method for adding an example item with name and enchantments only.
+     */
+    private void addExampleItem(ConfigurationSection section, String item, int min, int max, int chance, String name, Map<String, Integer> enchants) {
+        addExampleItem(section, item, min, max, chance, name, null, null, enchants);
+    }
+
+    /**
+     * Overloaded method for adding an example item with no additional options.
+     */
+    private void addExampleItem(ConfigurationSection section, String item, int min, int max, int chance) {
+        addExampleItem(section, item, min, max, chance, null, null, null, null);
     }
 
     /**

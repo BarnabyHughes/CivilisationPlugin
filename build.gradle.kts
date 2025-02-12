@@ -10,6 +10,7 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://oss.sonatype.org/content/repositories/central")
     maven("https://repo.lucko.me/") // LuckPerms API repository
+    maven("https://repo.oraxen.com/releases")
 }
 
 dependencies {
@@ -18,6 +19,8 @@ dependencies {
 
     // LuckPerms API
     compileOnly("net.luckperms:api:5.4")
+
+    compileOnly("io.th0rgal:oraxen:1.189.0")
 
     // Corrected Spigot API reference
     compileOnly(files("libs/spigot-api-1.21.1-R0.1-SNAPSHOT-shaded.jar"))

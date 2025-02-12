@@ -1,5 +1,7 @@
 package me.barnaby.civilisation.airdrop;
 
+import io.th0rgal.oraxen.api.OraxenItems;
+import io.th0rgal.oraxen.items.ItemBuilder;
 import me.barnaby.civilisation.Civilisation;
 import me.barnaby.civilisation.config.ConfigManager;
 import me.barnaby.civilisation.util.ChatUtils;
@@ -174,15 +176,25 @@ public class AirdropManager {
             int chance = itemSection.getInt("chance-of-inclusion", 100);
             if (random.nextInt(100) >= chance) continue;
 
-            Material material = Material.matchMaterial(key);
-            if (material == null) continue;
-
             int minAmount = itemSection.getInt("amount-min", 1);
             int maxAmount = itemSection.getInt("amount-max", 1);
             int amount = random.nextInt((maxAmount - minAmount) + 1) + minAmount;
 
-            ItemStack item = new ItemStack(material, amount);
+            ItemStack item = new ItemStack(Material.STONE);
+            if (key.startsWith("ORAXEN_")) {
+                String id = key.replace("ORAXEN_", "");
+                ItemBuilder itemBuilder = OraxenItems.getItemById(id);
+                if (itemBuilder != null) item=itemBuilder.setAmount(amount).build();
+            }
+
+            else {
+                Material material = Material.matchMaterial(key);
+                if (material == null) continue;
+                item = new ItemStack(material, amount);
+            }
+
             ItemMeta meta = item.getItemMeta();
+
             if (meta != null) {
                 // Apply custom name if provided
                 if (itemSection.contains("name")) {

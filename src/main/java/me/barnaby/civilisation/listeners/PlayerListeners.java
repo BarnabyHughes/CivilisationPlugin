@@ -36,8 +36,7 @@ public class PlayerListeners implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         User user = luckPerms.getUserManager().getUser(player.getUniqueId());
-
-        if (user == null) return; // Shouldn't happen
+        if (user == null) return; // Should not happen
 
         ChatType chatType = ChatManager.getChatChannel(player);
         String primaryGroup = user.getPrimaryGroup();
@@ -61,8 +60,10 @@ public class PlayerListeners implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (player.hasPlayedBefore()) return;
-        civilisationManager.teleportToCivilisationSpawn(player);
+        // Only teleport on first join (adjust as needed)
+        if (!player.hasPlayedBefore()) {
+            civilisationManager.teleportToCivilisationSpawn(player);
+        }
     }
 
     /**
@@ -77,7 +78,6 @@ public class PlayerListeners implements Listener {
      */
     private void sendLocalMessage(Player player, String message) {
         int localChatDistance = configManager.getConfig().getInt("chat.local_distance", 100);
-
         Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
             if (onlinePlayer.getWorld().equals(player.getWorld()) &&
                     onlinePlayer.getLocation().distance(player.getLocation()) <= localChatDistance) {
@@ -87,14 +87,13 @@ public class PlayerListeners implements Listener {
     }
 
     /**
-     * Sends a staff chat message to all players with the `civilisation.staff` permission.
+     * Sends a staff chat message to all players with the appropriate permission.
      */
     private void sendStaffMessage(Player player, String message) {
         if (!player.hasPermission("civilisation.staff")) {
             player.sendMessage(configManager.getMessage("chat.staff_no_permission"));
             return;
         }
-
         Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
             if (onlinePlayer.hasPermission("civilisation.staff")) {
                 onlinePlayer.sendMessage(configManager.getMessage("chat.staff", message));
@@ -103,7 +102,7 @@ public class PlayerListeners implements Listener {
     }
 
     /**
-     * Sends a civilisation chat message to all players within the same civilisation.
+     * Sends a civilisation chat message to all players in the same civilisation.
      */
     private void sendCivilisationMessage(Player player, String message) {
         String civ = civilisationManager.getPlayerCivilisation(player);
@@ -111,7 +110,6 @@ public class PlayerListeners implements Listener {
             player.sendMessage(configManager.getMessage("chat.civilisation_no_membership"));
             return;
         }
-
         Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
             if (civ.equals(civilisationManager.getPlayerCivilisation(onlinePlayer))) {
                 onlinePlayer.sendMessage(configManager.getMessage("chat.civilisation", message));

@@ -5,16 +5,17 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-/**
- * Manages civilisations, including their spawn points and player memberships.
- */
 public class CivilisationManager {
     private final Plugin plugin;
     private final ConfigManager configManager;
@@ -22,9 +23,6 @@ public class CivilisationManager {
     private final Map<String, Location> civilisationSpawns = new HashMap<>();
     private final Random random = new Random();
 
-    /**
-     * Constructor now takes a LuckPerms instance.
-     */
     public CivilisationManager(Plugin plugin, ConfigManager configManager) {
         this.plugin = plugin;
         this.configManager = configManager;
@@ -56,8 +54,10 @@ public class CivilisationManager {
 
             // Example empty player list
             config.set(exampleCiv + ".players", new ArrayList<String>());
-            // Set the associated LuckPerms group for this civilisation (for example, "default")
+            // The associated LuckPerms group for this civilisation
             config.set(exampleCiv + ".rank", "default");
+            // New nametag-prefix option; {0} will be replaced with the player's name.
+            config.set(exampleCiv + ".nametag-prefix", "&6Example &f");
 
             plugin.getLogger().info(configManager.getMessage("civilisation.created_example"));
         }
@@ -75,21 +75,16 @@ public class CivilisationManager {
 
     /**
      * Retrieves the spawn location for a given civilisation.
-     *
-     * @param civilisation The name of the civilisation.
-     * @return The spawn location of the civilisation.
      */
     public Location getCivilisationSpawn(String civilisation) {
         return civilisationSpawns.get(civilisation);
     }
 
     /**
-     * Determines which civilisation a player belongs to. First it checks if the player’s name is already
-     * stored in a civilisation’s player list. If not, it uses LuckPerms to check if the player has the group
-     * (as defined by the civilisation’s "rank" key) and, if so, adds the player to that civilisation.
-     *
-     * @param player The player to check.
-     * @return The name of the player's civilisation, or null if they are not in one.
+     * Determines which civilisation a player belongs to.
+     * If the player isn’t already registered, it uses LuckPerms (checking all inherited groups)
+     * to see if the player has the group associated with the civilisation.
+     * If a match is found, the player is added to that civilisation’s list.
      */
     public String getPlayerCivilisation(Player player) {
         FileConfiguration config = configManager.getConfig();
@@ -126,8 +121,6 @@ public class CivilisationManager {
 
     /**
      * Teleports a player to their civilisation's spawn point if they belong to one.
-     *
-     * @param player The player to teleport.
      */
     public void teleportToCivilisationSpawn(Player player) {
         String civ = getPlayerCivilisation(player);
@@ -143,11 +136,42 @@ public class CivilisationManager {
     }
 
     /**
+     * Applies a nametag prefix for the player based on their civilisation.
+     * The prefix is read from the config (e.g. "&7Example {0}"), color codes are applied,
+     * and the placeholder "{0}" is replaced with the player's name.
+     * The prefix is then applied via a per-player scoreboard team.
+     */
+    public void applyNametagPrefix(Player player) {
+        String civ = getPlayerCivilisation(player);
+        if (civ == null) {
+            return;
+        }
+        String prefix = configManager.getConfig().getString("civilisations." + civ + ".nametag-prefix", "");
+        if (prefix.isEmpty()) {
+            return;
+        }
+        // Replace {0} with the player's name and apply color codes.
+        prefix = ChatColor.translateAlternateColorCodes('&', prefix);
+
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        Scoreboard board = manager.getMainScoreboard();
+        // Create a unique team name for the player; ensure it is 16 characters or fewer.
+        String teamName = "nt_" + civ;
+        if (teamName.length() > 16) {
+            teamName = teamName.substring(0, 16);
+        }
+        Team team = board.getTeam(teamName);
+        if (team == null) team = board.registerNewTeam(teamName);
+
+        team.setPrefix(prefix);
+        char color = ChatColor.getLastColors(prefix).charAt(1);
+        ChatColor color1 = ChatColor.getByChar(color);
+        if (color1 != null) team.setColor(color1);
+        team.addEntry(player.getName());
+    }
+
+    /**
      * Retrieves a location from the configuration.
-     *
-     * @param config The configuration file.
-     * @param path   The configuration path.
-     * @return The location stored in the configuration.
      */
     private Location getLocationFromConfig(FileConfiguration config, String path) {
         String world = config.getString(path + ".world");
@@ -162,11 +186,8 @@ public class CivilisationManager {
 
     /**
      * Retrieves a list of all registered civilisation names.
-     *
-     * @return A list of civilisation names.
      */
     public List<String> getCivilisations() {
         return new ArrayList<>(civilisationSpawns.keySet());
     }
 }
-

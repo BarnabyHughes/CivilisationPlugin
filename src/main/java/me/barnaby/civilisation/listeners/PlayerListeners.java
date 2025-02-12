@@ -8,7 +8,6 @@ import me.barnaby.civilisation.config.ConfigManager;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -56,26 +55,22 @@ public class PlayerListeners implements Listener {
 
     /**
      * Handles player join events and teleports them to their civilisation's spawn point if applicable.
+     * Also applies the nametag prefix.
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        // Only teleport on first join (adjust as needed)
         if (!player.hasPlayedBefore()) {
             civilisationManager.teleportToCivilisationSpawn(player);
         }
+        // Apply the nametag prefix on every join.
+        civilisationManager.applyNametagPrefix(player);
     }
 
-    /**
-     * Sends a chat message globally.
-     */
     private void sendChatMessage(String messageKey, String message) {
         Bukkit.broadcastMessage(configManager.getMessage(messageKey, message));
     }
 
-    /**
-     * Sends a local chat message to players within a configured distance of the sender.
-     */
     private void sendLocalMessage(Player player, String message) {
         int localChatDistance = configManager.getConfig().getInt("chat.local_distance", 100);
         Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
@@ -86,9 +81,6 @@ public class PlayerListeners implements Listener {
         });
     }
 
-    /**
-     * Sends a staff chat message to all players with the appropriate permission.
-     */
     private void sendStaffMessage(Player player, String message) {
         if (!player.hasPermission("civilisation.staff")) {
             player.sendMessage(configManager.getMessage("chat.staff_no_permission"));
@@ -101,9 +93,6 @@ public class PlayerListeners implements Listener {
         });
     }
 
-    /**
-     * Sends a civilisation chat message to all players in the same civilisation.
-     */
     private void sendCivilisationMessage(Player player, String message) {
         String civ = civilisationManager.getPlayerCivilisation(player);
         if (civ == null) {

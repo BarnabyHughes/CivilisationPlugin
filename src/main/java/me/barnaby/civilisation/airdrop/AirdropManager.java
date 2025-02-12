@@ -39,7 +39,7 @@ public class AirdropManager {
      * Starts an automatic airdrop timer based on configured intervals.
      */
     private void startAirdropTimer() {
-        int interval = configManager.getConfig().getInt("airdrop.interval", 7200); // Default 2 hours
+        int interval = configManager.getConfig().getInt("airdrop.interval", 7200); // Default 2 hours (in seconds)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -76,19 +76,20 @@ public class AirdropManager {
             return;
         }
 
+        // Place the chest on top of the highest block by using the dropLocation (which is already one block above)
         Block block = dropLocation.getBlock();
         block.setType(Material.CHEST);
 
         Chest chest = (Chest) block.getState();
         fillChestWithLoot(chest, type);
 
-        // Firework Effect
+        // Firework Effect at the airdrop location
         launchFirework(dropLocation);
 
         // Announce to public
         Bukkit.broadcastMessage(configManager.getMessage("airdrop.announcement", type.toUpperCase(), dropLocation.getBlockX(), dropLocation.getBlockZ()));
 
-        // Notify staff with clickable teleport message
+        // Notify staff with a clickable teleport message
         StaffUtil.getOnlineStaff().forEach(staff -> ChatUtils.sendClickableMessage(
                 staff,
                 configManager.getMessage("airdrop.teleport_click"),
@@ -117,6 +118,13 @@ public class AirdropManager {
 
     /**
      * Retrieves a random valid location for the airdrop.
+     * <p>
+     * This method attempts to find a location within the defined region
+     * where the airdrop can safely land. It checks that the block at the
+     * highest point is both solid and not liquid (e.g., water or lava).
+     * If a valid location is found, it returns the location one block above,
+     * where the chest will be placed.
+     * </p>
      */
     private Location getRandomLocation() {
         ConfigurationSection section = configManager.getConfig().getConfigurationSection("airdrop.region");
@@ -130,11 +138,20 @@ public class AirdropManager {
         int x2 = section.getInt("x2");
         int z2 = section.getInt("z2");
 
-        int x = random.nextInt(Math.abs(x2 - x1)) + Math.min(x1, x2);
-        int z = random.nextInt(Math.abs(z2 - z1)) + Math.min(z1, z2);
-        int y = world.getHighestBlockYAt(x, z);
+        int attempts = 0;
+        while (attempts < 10) {
+            int x = random.nextInt(Math.abs(x2 - x1) + 1) + Math.min(x1, x2);
+            int z = random.nextInt(Math.abs(z2 - z1) + 1) + Math.min(z1, z2);
+            Block highestBlock = world.getHighestBlockAt(x, z);
 
-        return new Location(world, x, y, z);
+            // Ensure the block is solid and not liquid (e.g., water or lava)
+            if (!highestBlock.isLiquid() && highestBlock.getType().isSolid()) {
+                // Return the location one block above the highest block
+                return highestBlock.getLocation().add(0, 1, 0);
+            }
+            attempts++;
+        }
+        return null;
     }
 
     /**
@@ -201,11 +218,13 @@ public class AirdropManager {
     private void launchFirework(Location loc) {
         Firework firework = loc.getWorld().spawn(loc, Firework.class);
         FireworkMeta meta = firework.getFireworkMeta();
-        meta.addEffect(FireworkEffect.builder()
-                .with(FireworkEffect.Type.BALL)
-                .withColor(Color.RED, Color.YELLOW)
-                .withFlicker()
-                .build());
+        meta.addEffect(
+                FireworkEffect.builder()
+                        .with(FireworkEffect.Type.BALL)
+                        .withColor(Color.RED, Color.YELLOW)
+                        .withFlicker()
+                        .build()
+        );
         meta.setPower(1);
         firework.setFireworkMeta(meta);
     }

@@ -1,5 +1,6 @@
 package me.barnaby.civilisation.commands;
 
+import me.barnaby.civilisation.Civilisation;
 import me.barnaby.civilisation.airdrop.AirdropManager;
 import me.barnaby.civilisation.config.ConfigManager;
 import org.bukkit.command.Command;
@@ -14,9 +15,9 @@ public class AirdropCommand implements CommandExecutor {
     private final AirdropManager airdropManager;
     private final ConfigManager configManager;
 
-    public AirdropCommand(AirdropManager airdropManager, ConfigManager configManager) {
-        this.airdropManager = airdropManager;
-        this.configManager = configManager;
+    public AirdropCommand(Civilisation civilisation) {
+        this.airdropManager = civilisation.getAirdropManager();
+        this.configManager = civilisation.getConfigManager();
     }
 
     @Override

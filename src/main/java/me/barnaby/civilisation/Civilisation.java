@@ -18,41 +18,51 @@ public class Civilisation extends JavaPlugin {
 
     private ConfigManager configManager;
     private CivilisationManager civilisationManager;
+    private AirdropManager airdropManager;
+    private EventManager eventManager;
 
     /**
      * Called when the plugin is enabled. Initializes all managers, commands, and events.
      */
     @Override
     public void onEnable() {
-        // Initialize Configuration Manager
         configManager = new ConfigManager(this, LuckPermsProvider.get());
 
-        // Initialize Civilisation Manager
+        // Reinitialize other managers that depend on the configuration
         civilisationManager = new CivilisationManager(this, configManager);
-
+        airdropManager = new AirdropManager(this);
+        eventManager = new EventManager(this);
         // Register event listeners
         Bukkit.getPluginManager().registerEvents(
-                new PlayerListeners(configManager, LuckPermsProvider.get(), civilisationManager), this
+                new PlayerListeners(this, LuckPermsProvider.get()), this
         );
 
         // Register commands
         registerCommands();
     }
 
+    public void reloadCivilisationsConfig() {
+        System.out.println("Reloading configuration and components...");
+
+        reloadConfig();
+        configManager.loadConfig();
+
+    }
+
+
     /**
      * Registers all plugin commands.
      */
     private void registerCommands() {
         getCommand("notify").setExecutor(new NotifyCommand(this));
-        getCommand("report").setExecutor(new ReportCommand(configManager));
+        getCommand("report").setExecutor(new ReportCommand(this));
         getCommand("chat").setExecutor(new ChatCommand(this));
+        getCommand("civilisation").setExecutor(new CivilisationCommand(this));
 
-        // Initialize and register Airdrop and Event commands with their respective managers
-        AirdropManager airdropManager = new AirdropManager(this, configManager);
-        EventManager eventManager = new EventManager(this, configManager, civilisationManager);
 
-        getCommand("airdrop").setExecutor(new AirdropCommand(airdropManager, configManager));
-        getCommand("event").setExecutor(new EventCommand(eventManager, configManager));
+
+        getCommand("airdrop").setExecutor(new AirdropCommand(this));
+        getCommand("event").setExecutor(new EventCommand(this));
     }
 
     /**
@@ -66,6 +76,14 @@ public class Civilisation extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public AirdropManager getAirdropManager() {
+        return airdropManager;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
     }
 }
 

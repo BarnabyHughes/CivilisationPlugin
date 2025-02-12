@@ -1,5 +1,6 @@
 package me.barnaby.civilisation.airdrop;
 
+import me.barnaby.civilisation.Civilisation;
 import me.barnaby.civilisation.config.ConfigManager;
 import me.barnaby.civilisation.util.ChatUtils;
 import me.barnaby.civilisation.util.StaffUtil;
@@ -24,13 +25,13 @@ import java.util.*;
  * Manages airdrop events, including spawning and loot distribution.
  */
 public class AirdropManager {
-    private final Plugin plugin;
+    private final Civilisation plugin;
     private final ConfigManager configManager;
     private final Random random = new Random();
 
-    public AirdropManager(Plugin plugin, ConfigManager configManager) {
+    public AirdropManager(Civilisation plugin) {
         this.plugin = plugin;
-        this.configManager = configManager;
+        this.configManager = plugin.getConfigManager();
         startAirdropTimer();
     }
 

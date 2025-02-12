@@ -1,5 +1,6 @@
 package me.barnaby.civilisation.commands;
 
+import me.barnaby.civilisation.Civilisation;
 import me.barnaby.civilisation.config.ConfigManager;
 import me.barnaby.civilisation.util.ChatUtils;
 import me.barnaby.civilisation.util.StaffUtil;
@@ -21,8 +22,8 @@ import java.util.stream.Collectors;
 public class ReportCommand implements CommandExecutor {
     private final ConfigManager configManager;
 
-    public ReportCommand(ConfigManager configManager) {
-        this.configManager = configManager;
+    public ReportCommand(Civilisation civilisation) {
+        this.configManager = civilisation.getConfigManager();
     }
 
     @Override

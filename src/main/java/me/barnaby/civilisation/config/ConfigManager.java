@@ -35,7 +35,7 @@ public class ConfigManager {
     /**
      * Loads the configuration file and initializes required sections.
      */
-    private void loadConfig() {
+    public void loadConfig() {
         configFile = new File(plugin.getDataFolder(), "config.yml");
 
         // Create a new config file if it doesn't exist
@@ -194,7 +194,6 @@ public class ConfigManager {
 
     public String getMessage(String key, Object... args) {
         String message = config.getString("messages." + key, "&c[Missing message: " + key + "]");
-
         // Replace placeholders {0}, {1}, {2}, etc.
         for (int i = 0; i < args.length; i++) {
             message = message.replace("{" + i + "}", args[i].toString());

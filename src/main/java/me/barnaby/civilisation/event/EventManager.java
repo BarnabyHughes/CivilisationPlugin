@@ -1,5 +1,6 @@
 package me.barnaby.civilisation.event;
 
+import me.barnaby.civilisation.Civilisation;
 import me.barnaby.civilisation.civilisation.CivilisationManager;
 import me.barnaby.civilisation.config.ConfigManager;
 import me.barnaby.civilisation.util.ChatUtils;
@@ -23,10 +24,10 @@ public class EventManager {
     private final CivilisationManager civilisationManager;
     private final Random random = new Random();
 
-    public EventManager(Plugin plugin, ConfigManager configManager, CivilisationManager civilisationManager) {
+    public EventManager(Civilisation plugin) {
         this.plugin = plugin;
-        this.configManager = configManager;
-        this.civilisationManager = civilisationManager;
+        this.configManager = plugin.getConfigManager();
+        this.civilisationManager = plugin.getCivilisationManager();
         startEventTimer();
     }
 

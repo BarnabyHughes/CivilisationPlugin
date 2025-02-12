@@ -1,5 +1,6 @@
 package me.barnaby.civilisation.commands;
 
+import me.barnaby.civilisation.Civilisation;
 import me.barnaby.civilisation.config.ConfigManager;
 import me.barnaby.civilisation.event.EventManager;
 import org.bukkit.command.Command;
@@ -13,9 +14,9 @@ public class EventCommand implements CommandExecutor {
     private final EventManager eventManager;
     private final ConfigManager configManager;
 
-    public EventCommand(EventManager eventManager, ConfigManager configManager) {
-        this.eventManager = eventManager;
-        this.configManager = configManager;
+    public EventCommand(Civilisation civilisation) {
+        this.eventManager = civilisation.getEventManager();
+        this.configManager = civilisation.getConfigManager();
     }
 
     @Override

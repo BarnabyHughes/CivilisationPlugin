@@ -1,5 +1,6 @@
 package me.barnaby.civilisation.listeners;
 
+import me.barnaby.civilisation.Civilisation;
 import me.barnaby.civilisation.chat.ChatManager;
 import me.barnaby.civilisation.chat.ChatType;
 import me.barnaby.civilisation.civilisation.CivilisationManager;
@@ -22,10 +23,10 @@ public class PlayerListeners implements Listener {
     private final LuckPerms luckPerms;
     private final CivilisationManager civilisationManager;
 
-    public PlayerListeners(ConfigManager configManager, LuckPerms luckPerms, CivilisationManager civilisationManager) {
-        this.configManager = configManager;
+    public PlayerListeners(Civilisation civilisation, LuckPerms luckPerms) {
+        this.configManager = civilisation.getConfigManager();
         this.luckPerms = luckPerms;
-        this.civilisationManager = civilisationManager;
+        this.civilisationManager = civilisation.getCivilisationManager();
     }
 
     /**

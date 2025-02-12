@@ -13,3 +13,4 @@ commands:
     usage: /chat <global/local/staff>
   airdrop:
   event:
+  civilisation:

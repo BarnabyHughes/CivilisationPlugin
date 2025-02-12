@@ -18,11 +18,11 @@ public class CivilisationCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // No arguments provided - show plugin info and help.
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.GOLD + "---------------------------");
-            sender.sendMessage(ChatColor.AQUA + "Civilisation Plugin");
-            sender.sendMessage(ChatColor.YELLOW + "Version: " + civilisation.getDescription().getVersion());
-            sender.sendMessage(ChatColor.GRAY + "Usage: /" + label + " reload");
-            sender.sendMessage(ChatColor.GOLD + "---------------------------");
+            sender.sendMessage(ChatColor.GOLD + "" + ChatColor.STRIKETHROUGH + "---------------------------");
+            sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Civilisation Plugin "
+            + ChatColor.YELLOW + "Version: " + civilisation.getDescription().getVersion());
+            sender.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "Developed by: Barnaby!");
+            sender.sendMessage(ChatColor.GOLD + "" + ChatColor.STRIKETHROUGH + "---------------------------");
             return true;
         }
         // One argument provided
@@ -35,7 +35,8 @@ public class CivilisationCommand implements CommandExecutor {
                     return true;
                 }
                 civilisation.reloadCivilisationsConfig();
-                sender.sendMessage(ChatColor.GREEN + "Civilisation reloaded successfully!");
+                sender.sendMessage(ChatColor.GREEN + "Civilisation messages reloaded successfully!");
+                sender.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "Some changes still might require a restart or rejoin!");
                 return true;
             }
             // If the argument isn't recognized, show an error message.

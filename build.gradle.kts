@@ -32,7 +32,7 @@ tasks.test {
 
 // Set Java version
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17)) // Ensure compatibility with Minecraft versions
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21)) // Ensure compatibility with Minecraft versions
 }
 
 // Automatically copy the built JAR to IntelliJ project directory: /server/plugins/
